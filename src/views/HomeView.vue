@@ -9,9 +9,16 @@ onMounted(() => {
 })
 
 function init() {
+  const bounds = L.latLngBounds(L.latLng(0,0), L.latLng(-256, 256));
+
   let map = L.map('map', {
-    center: [0, 0],
+    maxBounds: bounds,
+    center: [-102, 148],
     crs: L.CRS.Simple,
+    attributionControl: false,
+    zoomControl: false,
+    minZoom: 4,
+    maxZoom: 7,
     zoom: 5
   });
 
@@ -21,10 +28,37 @@ function init() {
   });
 
   L.tileLayer('images/map/{z}/{x}/{y}.png', {
+    bounds,
     maxZoom: 7,
   }).addTo(map);
-    console.log(map);
-  }
+
+  const markerList = [
+    {
+      lat: -88.125,
+      lng: 139.40625,
+      areaName: '苍风高地',
+    },
+    {
+      lat: -99.96875,
+      lng: 125.71875,
+      areaName: '碧水原',
+    }
+  ]
+
+  let markers = markerList.map((val) => {
+    let {lat, lng, areaName} = val;
+    const marker = L.marker(L.latLng(lat, lng), {
+      icon: L.divIcon({
+        className: 'map-marker-item',
+        html: `<div class="area-marker-item">${areaName}</div>`,
+      }),
+    })
+    return marker;
+  })
+
+  let areaNameLayerGroup = L.layerGroup(markers);
+  areaNameLayerGroup.addTo(map);
+}
 </script>
 
 <template>
