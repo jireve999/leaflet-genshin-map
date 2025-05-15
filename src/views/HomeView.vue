@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { MapManager } from '../js/map-manager';
 import { onMounted } from 'vue';
 
 onMounted(() => {
@@ -9,29 +8,7 @@ onMounted(() => {
 })
 
 function init() {
-  const bounds = L.latLngBounds(L.latLng(0,0), L.latLng(-256, 256));
-
-  let map = L.map('map', {
-    maxBounds: bounds,
-    center: [-102, 148],
-    crs: L.CRS.Simple,
-    attributionControl: false,
-    zoomControl: false,
-    minZoom: 4,
-    maxZoom: 7,
-    zoom: 5
-  });
-
-  map.on('click', (workingLayer) => {
-    const cordinate  = workingLayer.latlng;
-    console.log('cordinate', cordinate);
-  });
-
-  L.tileLayer('images/map/{z}/{x}/{y}.png', {
-    bounds,
-    maxZoom: 7,
-  }).addTo(map);
-
+  const mapManager = new MapManager('map');
   const markerList = [
     {
       lat: -88.125,
@@ -45,19 +22,22 @@ function init() {
     }
   ]
 
-  let markers = markerList.map((val) => {
-    let {lat, lng, areaName} = val;
-    const marker = L.marker(L.latLng(lat, lng), {
-      icon: L.divIcon({
-        className: 'map-marker-item',
-        html: `<div class="area-marker-item">${areaName}</div>`,
-      }),
-    })
-    return marker;
-  })
+  mapManager.renderAreaNames(markerList);
 
-  let areaNameLayerGroup = L.layerGroup(markers);
-  areaNameLayerGroup.addTo(map);
+  const pointMarkerList = [
+    {
+      lat: -99.53125,
+      lng: 131.65625,
+      iconId: 1
+    },
+    {
+      lat: -90.5625,
+      lng: 144.65625,
+      iconId: 1
+    }
+  ]
+  mapManager.renderPoints(pointMarkerList);
+  mapManager.enableClickDebug();
 }
 </script>
 

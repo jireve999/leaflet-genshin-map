@@ -1,5 +1,5 @@
 import './css/main.less'
-
+import 'leaflet/dist/leaflet.css';
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
