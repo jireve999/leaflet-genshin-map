@@ -57,7 +57,10 @@ function init() {
           <LocationBtn />
           <SelectArea />
           <FilterHeader />
-          <div class="search-container">搜索</div>
+          <div class="search-container">
+            <div class="search-icon"></div>
+            <div class="search-tip">搜索</div>
+          </div>
           <FilterMain />
         </div>
       </div>
@@ -99,6 +102,7 @@ function init() {
         width: 100%;
         height: 100%;
         border-radius: 12px;
+        overflow: hidden;
         .close-btn { 
           position: absolute;
           top: 32px;
@@ -119,8 +123,24 @@ function init() {
           }
         }
         .search-container {
-          width: 100%;
-          height: 52px;
+          width: 355px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          background-color: #323947;
+          color:#9b9c9f;
+          font-size: 12px;
+          border-radius: 22px;
+          box-sizing: border-box;
+          padding-left: 10px;
+          margin: 10px auto;
+          .search-icon { 
+            width: 16px;
+            height: 16px;
+            background-image: url('../assets/images/ui/search-icon.png');
+            background-size: cover;
+            margin-right: 5px;
+          }
         }
       }
     }
