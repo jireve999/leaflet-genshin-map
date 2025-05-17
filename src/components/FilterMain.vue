@@ -1,5 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { getMapFilterTree } from '../js/api';
+
+onMounted(() => {
+  init();
+})
+
+async function init() {
+  let res = await getMapFilterTree();
+  console.log('res', res);
+}
 
 const activeTypeIndex = ref(0);
 function onTypeItemClick(index: number) {
