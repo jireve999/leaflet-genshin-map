@@ -21,7 +21,22 @@ function onTypeItemClick(index: number) {
         <div class="item-count">3</div>
       </div>
     </div>
-    <div class="filter-main-right"></div>
+    <div class="filter-main-right">
+      <div class="filter-content-item" v-for="i in 10" :key="i">
+        <div class="content-head">
+          <div class="head-title">露天宝箱</div>
+        </div>
+        <div class="content-body">
+          <div class="content-item" v-for="item in 5" :key="item">
+            <div class="item-icon-container">
+              <div class="icon-pic" :style="{ backgroundImage: 'url(https://uploadstatic.mihoyo.com/ys-obc/2020/09/08/75276545/35cf41aad7620ce6d5dc516defb967f7_7806440070871726330.png?x-oss-process=image%2Fresize%2Cw_85%2Fquality%2CQ_90%2Fformat%2Cwebp)'}"></div>
+              <div class="icon-count">1161</div>
+            </div>
+            <div class="content-item-name">普通的宝箱</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -78,7 +93,68 @@ function onTypeItemClick(index: number) {
     }
   }
   .filter-main-right {
+    padding: 0 10px;
     flex: 1;
+    overflow-y: auto;
+    &::-webkit-scrollbar { 
+      display: none;
+    }
+    .filter-content-item {
+      border-bottom: 1px solid rgba(74, 83, 102, 0.5);
+      .content-head {
+        padding: 16px 0 0 2px;
+        .head-title {
+         color: #d3bc8e;
+         font-size: 14px;
+        }
+      }
+      .content-body {
+        margin-top: 14px;
+        display: flex;
+        flex-wrap: wrap;
+        .content-item {
+          cursor: pointer;
+          margin-bottom: 15px;
+          margin-right: 10px;
+          &:nth-of-type(4n) {
+            margin-right: 0;
+          }
+          .item-icon-container {
+            position: relative;
+            width: 57px;
+            height: 57px;
+            border-radius: 6px;
+            background-color: #323947;
+            .icon-pic {
+              width: 100%;
+              height: 100%;
+              background-size: cover;
+            }
+            .icon-count {
+              position: absolute;
+              font-size: 10px;
+              right: 0;
+              bottom: 0;
+              line-height: 13px;
+              color: #9b9c9f;
+              background-color: #323947;
+              padding: 0 4px;
+              border-radius: 6px 0 6px 0;
+            }
+          }
+          .content-item-name {
+            margin-top: 5px;
+            font-size: 12px;
+            color: hsla(39, 34%, 89%, .75);
+            max-width: 57px;
+            overflow: hidden;
+            white-space: nowrap;
+            -o-text-overflow: ellipsis;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
   }
 }
 </style>
