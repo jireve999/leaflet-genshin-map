@@ -2,19 +2,39 @@
 import { ref, onMounted } from 'vue';
 import { getMapFilterTree } from '../js/api';
 
+const activeTypeIndex = ref(0);
+const filterTree = ref<any[]>([]);
+
 onMounted(() => {
   init();
 })
 
 async function init() {
   let res = await getMapFilterTree();
-  console.log('res', res);
+  filterTree.value = res.data.data;
+  console.log(res.data);
 }
 
-const activeTypeIndex = ref(0);
+function onFilterItemClick(child: any) {
+  Reflect.set(child, 'active', !child.active);  // 切换选中状态
+}
+
+function getActiveCount(item: any) {
+  let res = 0;
+  item.children.forEach((child: any) => {
+    if (child.active) {
+      res++;
+    }
+  })
+  return res;
+}
+
 function onTypeItemClick(index: number) {
   activeTypeIndex.value = index;
+
+  document.querySelector(`#filterContentItem${index}`)?.scrollIntoView()
 }
+
 </script>
 
 <template>
@@ -22,27 +42,28 @@ function onTypeItemClick(index: number) {
     <div class="filter-main-left">
       <div 
         class="filter-type-item" 
-        :class="{ active: activeTypeIndex === item }"
-        v-for="item in 20" 
+        :class="{ active: activeTypeIndex === index }"
+        v-for="(item, index) in filterTree" 
         :key="item" 
-        @click="onTypeItemClick(item)"
+        @click="onTypeItemClick(index)"
       >
-        <div class="item-name">传送点</div>
-        <div class="item-count">3</div>
+        <div class="item-name">{{ item.name }}</div>
+        <div class="item-count" v-if="getActiveCount(item) !== 0">{{ getActiveCount(item) }}</div>
       </div>
     </div>
     <div class="filter-main-right">
-      <div class="filter-content-item" v-for="i in 10" :key="i">
+      <div class="filter-content-item" :id="`filterContentItem${index}`" v-for="(item,index) in filterTree" :key="item.id">
         <div class="content-head">
-          <div class="head-title">露天宝箱</div>
+          <div class="head-title">{{ item.name }}</div>
         </div>
         <div class="content-body">
-          <div class="content-item" v-for="item in 5" :key="item">
+          <div class="content-item" :class="{ active: child.active}" v-for="child in item.children" :key="child.id" @click="onFilterItemClick(child)">
             <div class="item-icon-container">
-              <div class="icon-pic" :style="{ backgroundImage: 'url(https://uploadstatic.mihoyo.com/ys-obc/2020/09/08/75276545/35cf41aad7620ce6d5dc516defb967f7_7806440070871726330.png?x-oss-process=image%2Fresize%2Cw_85%2Fquality%2CQ_90%2Fformat%2Cwebp)'}"></div>
-              <div class="icon-count">1161</div>
+              <div class="icon-pic" :style="{ backgroundImage: `url(${child.icon})`}"></div>
+              <div class="icon-count">12</div>
+              <div class="selected-icon" v-if="child.active"></div>
             </div>
-            <div class="content-item-name">普通的宝箱</div>
+            <div class="content-item-name">{{ child.name }}</div>
           </div>
         </div>
       </div>
@@ -71,6 +92,7 @@ function onTypeItemClick(index: number) {
       padding: 16px 6px;
       font-size: 12px;
       color: hsla(39, 34%, 89%, 0.75);
+      cursor: pointer;
       &.active {
         background-image: url("../assets/images/ui/filter-item-dec.png"), url('../assets/images/ui/filter-item-dec2.png');
         background-size: 5px 100%, 24px 100%;
@@ -126,6 +148,24 @@ function onTypeItemClick(index: number) {
           cursor: pointer;
           margin-bottom: 15px;
           margin-right: 10px;
+          &.active {
+            .item-icon-container {
+              &::after {
+                position: absolute;
+                display: block;
+                content: "";
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border: 1px solid #d3bc8e;
+                border-radius: 6px;
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+                z-index: 2;
+              }
+            }
+          }
           &:nth-of-type(4n) {
             margin-right: 0;
           }
@@ -138,6 +178,15 @@ function onTypeItemClick(index: number) {
             .icon-pic {
               width: 100%;
               height: 100%;
+              background-size: cover;
+            }
+            .selected-icon {
+              position: absolute;
+              top: 0;
+              right: -1px;
+              width: 24px;
+              height: 14px;
+              background-image: url("../assets/images/ui/select-icon.png");
               background-size: cover;
             }
             .icon-count {
@@ -161,6 +210,7 @@ function onTypeItemClick(index: number) {
             white-space: nowrap;
             -o-text-overflow: ellipsis;
             text-overflow: ellipsis;
+            text-align: center;
           }
         }
       }
