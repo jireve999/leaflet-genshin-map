@@ -11,8 +11,8 @@ onMounted(() => {
 
 async function init() {
   let res = await getMapFilterTree();
-  filterTree.value = res.data.data;
-  console.log(res.data);
+  filterTree.value = res.data;
+  console.log('filterTree', res.data);
 }
 
 function onFilterItemClick(child: any) {

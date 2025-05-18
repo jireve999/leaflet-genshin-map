@@ -1,4 +1,18 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { getMapAnchorList } from '../js/api';
+import { ref, onMounted } from 'vue';
+const mapAnchorList = ref<any[]>([]);
+
+onMounted(() => {
+  init();
+})
+
+async function init() {
+  let res = await getMapAnchorList();
+  mapAnchorList.value = res.data;
+  console.log('mapAnchorList', res.data);
+}
+</script>
 
 <template>
   <div class="location-btn">
@@ -6,12 +20,12 @@
     <div class="location-content">
       <div class="location-title">快速定位</div>
       <div class="content-area">
-        <div class="area-item" v-for="item in 10" :key="item">
+        <div class="area-item" v-for="item in mapAnchorList" :key="item.id">
           <div class="area-parent">
             <div class="parent-icon"></div>
-            <div class="parent-name">来歆山</div>
+            <div class="parent-name">{{ item.name }}</div>
           </div>
-          <div class="area-child" v-for="item in 5" :key="item">赤望台</div>
+          <div class="area-child" v-for="child in item.children" :key="child.id">{{ child.name }}</div>
         </div>
       </div>
     </div>

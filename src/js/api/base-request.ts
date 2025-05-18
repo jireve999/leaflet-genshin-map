@@ -14,13 +14,7 @@ export class BaseRequest {
     })
   }
 
-  sendReuest(method: string, path: string, params: any = null, data: any=null): Promise<any> {
-    return this.axiosInst.request({
-      method,
-      url: path,
-      params,
-      data
-    })
+  sendRequest(method: string, path: string, params: any = null, data: any=null): Promise<any> {
     // return this.axiosInst.request({
     //   method,
     //   url: path,
