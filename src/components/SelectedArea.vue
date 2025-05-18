@@ -1,16 +1,32 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useHomeStore } from '../stores/home';
+import { storeToRefs } from 'pinia';
+import { ref, onMounted } from 'vue';
+
+const expanded = ref(false);
+const store = useHomeStore();
+const { selectedFilterItems } = storeToRefs(store);
+
+function onSelectedClick() {
+  expanded.value = !expanded.value;
+}
+
+function onSelectedItemClick(item: any) {
+  Reflect.set(item, 'active', false); 
+}
+</script>
 
 <template>
-  <div class="selected-area">
-    <!-- <div class="selected-count">2</div>
-    <div class="selected-icon"></div> -->
-    <div class="list-container">
-      <div class="up-container">
+  <div class="selected-area" :class="{ expanded }" v-if="selectedFilterItems.length > 0">
+    <div class="selected-count" v-if="!expanded">{{ selectedFilterItems.length }}</div>
+    <div class="selected-icon" v-if="!expanded" @click="onSelectedClick"></div>
+    <div class="list-container" v-else>
+      <div class="up-container" @click="onSelectedClick">
         <div class="up-icon"></div>
       </div>
-      <div class="selected-item" v-for="item in 3" :key="item">
+      <div class="selected-item" v-for="item in selectedFilterItems" :key="item.id" @click="onSelectedItemClick(item)">
         <div class="item-container">
-          <div class="item-icon" :style="{ backgroundImage: `url(https://uploadstatic.mihoyo.com/ys-obc/2020/09/08/75276545/c59585d1fabc9c22ad3fcf94e1622aa8_357413506633071859.png)` }"></div>
+          <div class="item-icon" :style="{ backgroundImage: `url(${item.icon})` }"></div>
         </div>
         <div class="icon-delete"></div>
       </div>
@@ -24,7 +40,7 @@
   top: 136px;
   right: -30px;
   width: 40px;
-  height: fit-content;
+  // height: fit-content;
   background-color: rgba(50,57,71,.8);
   border-radius: 8px;
   cursor: pointer;
@@ -44,6 +60,10 @@
     background-color: #ff5e41;
     border-radius: 6px;
     padding: 0 3px;
+  }
+  &.expanded {
+    height: fit-content;
+    // padding: 12px 0;
   }
   .selected-icon {
     width: 24px;

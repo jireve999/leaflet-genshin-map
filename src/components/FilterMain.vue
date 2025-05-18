@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { getMapFilterTree } from '../js/api';
+import { storeToRefs } from 'pinia';
+import { useHomeStore } from '../stores/home';
 
+const store = useHomeStore();
 const activeTypeIndex = ref(0);
-const filterTree = ref<any[]>([]);
+const { filterTree } = storeToRefs(store);
 
 onMounted(() => {
   init();
@@ -11,8 +14,9 @@ onMounted(() => {
 
 async function init() {
   let res = await getMapFilterTree();
-  filterTree.value = res.data;
-  console.log('filterTree', res.data);
+  // filterTree.value = res.data;
+  // console.log('filterTree', res.data);
+  store.setFilterTree(res.data);
 }
 
 function onFilterItemClick(child: any) {
