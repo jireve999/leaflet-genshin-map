@@ -1,17 +1,11 @@
 <script setup lang="ts">
 import { getMapAnchorList } from '../js/api';
-import { ref, onMounted } from 'vue';
-const mapAnchorList = ref<any[]>([]);
+import { useHomeStore } from '../stores/home';
+import { storeToRefs } from 'pinia';
 
-onMounted(() => {
-  init();
-})
-
-async function init() {
-  let res = await getMapAnchorList();
-  mapAnchorList.value = res.data;
-  console.log('mapAnchorList', res.data);
-}
+const store = useHomeStore();
+const { mapAnchorList } = storeToRefs(store);
+console.log('mapAnchorList', mapAnchorList);
 </script>
 
 <template>

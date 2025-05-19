@@ -5,28 +5,29 @@ import FilterHeader from '../components/FilterHeader.vue';
 import LocationBtn from '../components/LocationBtn.vue';
 import SelectArea from '../components/SelectedArea.vue';
 import FilterMain from '../components/FilterMain.vue';
+import { getMapAnchorList } from '../js/api';
+import { useHomeStore } from '../stores/home';
+
+const store = useHomeStore();
+const { setMapAnchorList } = store;
 
 onMounted(() => {
-  console.log('HomeView mounted');
+  // console.log('HomeView mounted');
   init();
 })
 
-function init() {
-  const mapManager = new MapManager('map');
-  const markerList = [
-    {
-      lat: -88.125,
-      lng: 139.40625,
-      areaName: '苍风高地',
-    },
-    {
-      lat: -99.96875,
-      lng: 125.71875,
-      areaName: '碧水原',
-    }
-  ]
+async function initMapAnchorList() {
+  let res = await getMapAnchorList();
+  setMapAnchorList(res.data);
+  console.log('initMapAnchorList', res.data);
+}
 
-  mapManager.renderAreaNames(markerList);
+async function init() {
+  await initMapAnchorList();
+  const mapManager = new MapManager('map');
+
+  mapManager.setMapAnchorList(store.mapAnchorList);
+  mapManager.renderAreaNames();
 
   const pointMarkerList = [
     {

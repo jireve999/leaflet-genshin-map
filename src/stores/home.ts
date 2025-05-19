@@ -4,10 +4,15 @@ import { defineStore } from 'pinia'
 export const useHomeStore = defineStore('home', () => {
   const filterTree = ref<any[]>([]);
   const selectedFilterItems = ref<any[]>([]);
+  const mapAnchorList = ref<any[]>([]);
 
   watch(filterTree, () => {
     calcSelectedFilterItems();
   }, {deep: true})
+
+  function setMapAnchorList(data: any[]) {
+    mapAnchorList.value = data;
+  }
 
   function setFilterTree(data: any[]) {
     filterTree.value = data;
@@ -27,5 +32,5 @@ export const useHomeStore = defineStore('home', () => {
     // console.log('ddd', selectedFilterItems.value);
   }
 
-  return { filterTree, setFilterTree, selectedFilterItems }
+  return { filterTree, setFilterTree, selectedFilterItems, mapAnchorList, setMapAnchorList }
 })

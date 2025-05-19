@@ -1,21 +1,24 @@
 import L from 'leaflet';
 
 interface AreaNameConfig {
-  lat: number,
-  lng: number,
-  areaName: string,
+  lat: number
+  lng: number
+  name: string
+  children: any[]
 }
 
 interface PointConfig {
-  lat: number,
-  lng: number,
-  iconId: number,
+  lat: number
+  lng: number
+  iconId: number
 }
 
 export class MapManager {
     private map: L.Map;
     private areaNameLayerGroup: L.LayerGroup | undefined;
     private pointMarkersGroup: L.LayerGroup | undefined;
+    private mapAnchorList: AreaNameConfig[] = [];
+    private prevZoom = 0;
   
     constructor(domId: string) {
       const bounds = L.latLngBounds(L.latLng(0,0), L.latLng(-256, 256));
@@ -31,28 +34,57 @@ export class MapManager {
         zoom: 5
       });
 
+      this.prevZoom = this.map.getZoom();
+
       L.tileLayer('images/map/{z}/{x}/{y}.png', {
         bounds,
         minZoom: 4,
         maxZoom: 7,
         noWrap: true
       }).addTo(this.map);
+
+      this.map.on('zoom', () => {
+        console.log('zoom', this.map.getZoom());
+        const prevRenderFlag = this.prevZoom >= 6;
+        const curRenderFlag = this.map.getZoom() >= 6;
+        if (prevRenderFlag !== curRenderFlag) {
+          console.log('zoom change');
+          this.renderAreaNames();
+          this.prevZoom = this.map.getZoom();
+        }
+      });
     }
 
-    renderAreaNames(configList: AreaNameConfig[]) {
-      const markers = configList.map((val) => {
-      const {lat, lng, areaName} = val;
-      const marker = L.marker(L.latLng(lat, lng), {
-        icon: L.divIcon({
-          className: 'map-marker-item',
-          html: `<div class="area-marker-item">${areaName}</div>`,
-        }),
-      })
-      return marker;
-    })
+    setMapAnchorList(configList: AreaNameConfig[]) {
+      this.mapAnchorList = configList;
+    }
 
+    renderAreaNames() {
+      this.areaNameLayerGroup?.clearLayers();
+
+      let markers: L.Marker[] = [];
+      if (this.map.getZoom() >= 6) {
+        this.mapAnchorList.forEach((val) => {
+          let childrenList: L.Marker[] = [];
+          childrenList = val.children.map(this.getAreaNameMarkerItem);
+          markers = markers.concat(childrenList);
+        })
+      } else {
+        markers = this.mapAnchorList.map(this.getAreaNameMarkerItem);
+      }
+      
     this.areaNameLayerGroup = L.layerGroup(markers);
     this.areaNameLayerGroup.addTo(this.map);
+    }
+
+    getAreaNameMarkerItem(config: AreaNameConfig) {
+      const {lat = 0, lng = 0, name} = config;
+      return L.marker(L.latLng(lat, lng), {
+        icon: L.divIcon({
+          className: 'map-marker-item',
+          html: `<div class="area-marker-item">${name}</div>`,
+        }),
+      })
     }
 
     renderPoints(pointList: PointConfig[]) {
