@@ -69,6 +69,7 @@
 }
 
 .point-item-container {
+  position: relative;
   width: 37px;
   height: 40px;
   background-size: cover;
@@ -77,6 +78,41 @@
   justify-content: center;
   box-sizing: border-box;
   padding-top: 3px;
+  .arrow-icon {
+    position: absolute;
+    display: none;;
+    width: 10px;
+    height: 10px;
+    background-image: url('../assets/images/map/arrow-l.png');
+    background-size: cover;
+    &.lb{
+      left: 0;
+      bottom: 6px;
+    }
+    &.lt {
+      transform: scaleY(-1);
+      left: 0;
+      top: -5px;
+    }
+    &.rb{
+      transform: scaleX(-1);
+      right: 0;
+      bottom: 6px;
+    }
+    &.rt {
+      transform: scale(-1);
+      right: 0;
+      top: -5px;
+    }
+  }
+  &.active {
+    background-image: url('../assets/images/map/icon-bg-active.png');
+    transform: scale(1.2);
+    transform-origin: center bottom;
+    .arrow-icon {
+      display: block;
+    }
+  }
   .point-pic {
     width: 25px;  
     height: 25px;

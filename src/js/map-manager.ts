@@ -11,6 +11,7 @@ interface PointConfig {
   lat: number
   lng: number
   icon: string
+  pointId: number
 }
 
 export class MapManager {
@@ -19,6 +20,7 @@ export class MapManager {
     private pointLayerGroup: L.LayerGroup | undefined;
     private mapAnchorList: AreaNameConfig[] = [];
     private prevZoom = 0;
+    private lastActivePointId = -1;
   
     constructor(domId: string) {
       const bounds = L.latLngBounds(L.latLng(0,0), L.latLng(-256, 256));
@@ -98,16 +100,32 @@ export class MapManager {
       this.pointLayerGroup?.clearLayers();
 
       const pointMarkers = pointList.map((val) => {
-        const {lat, lng, icon} = val;
+        const {lat, lng, icon, pointId} = val;
         const marker = L.marker(L.latLng(lat, lng), {
           icon: L.divIcon({
             className: 'map-point-item',
-            html: `<div class="point-item-container">
+            html: `<div class="point-item-container" id="mapPointItem${pointId}">
               <div class="point-pic" style="background-image: url(${icon})"></div>
+              <div class="arrow-icon lt"></div>
+              <div class="arrow-icon lb"></div>
+              <div class="arrow-icon rb"></div>
+              <div class="arrow-icon rt"></div>
             </div>`,
             iconSize: [37, 40],
             iconAnchor: [19, 20],
           }),
+        })
+
+        marker.on('click', (e) => {
+          if (this.lastActivePointId === pointId) return;
+
+          const lastActivePointId = document.getElementById(`mapPointItem${this.lastActivePointId}`);
+          lastActivePointId?.classList.remove('active');
+          
+          const cutPoint = document.getElementById(`mapPointItem${pointId}`);
+          cutPoint?.classList.add('active');
+
+          this.lastActivePointId = pointId;
         })
         return marker;
       })
