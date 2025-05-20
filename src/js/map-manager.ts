@@ -35,6 +35,13 @@ export class MapManager {
       });
 
       this.prevZoom = this.map.getZoom();
+      // this.map.addControl(new L.Control.Zoom({ position: 'bottomright' }));
+      // @ts-ignore
+      this.map.addControl(new L.Control.Zoomslider({
+        position: 'bottomright',
+        stepHeight: 30,
+        knobHeight: 20,
+      }));
 
       L.tileLayer('images/map/{z}/{x}/{y}.png', {
         bounds,

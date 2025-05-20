@@ -1,7 +1,61 @@
 @import './base.less';
 
 #app {
-
+  overflow: hidden;
+  .home-view {
+    .leaflet-touch {
+      .leaflet-bar {
+        a {
+          &:first-child {
+            background-image: url('../assets/images/ui/scale-add-icon.png');
+            background-color: transparent;
+            background-size: cover;
+            border: none;
+            width: 20px;
+            height: 20px;
+            background-size: 100% 100%;
+            margin-bottom: 10px;
+          }
+          &:last-child {
+            background-image: url('../assets/images/ui/scale-minus-icon.png');
+            background-color: transparent;
+            background-size: cover;
+            border: none;
+            width: 20px;
+            height: 20px;
+            background-size: 100% 100%;
+            margin-top: 10px;
+          }
+        }
+      }
+      .leaflet-control-zoomslider {
+        position: relative;
+        left: -10px;
+        bottom: 20px;
+        border: none;
+        .leaflet-control-zoomslider-wrap {
+          width: 20px;
+          .leaflet-control-zoomslider-body {
+            width: 10px;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, .4);
+            border: 1px solid hsla(0, 0%, 100%, .5);
+            position: relative;
+            margin: 0 auto; 
+            .leaflet-control-zoomslider-knob {
+              position: relative;
+              left: -6px;
+              width: 20px;
+              height: 20px;
+              background-image: url('../assets/images/ui/scale-pro-icon.png');
+              background-size: cover;
+              cursor: pointer;
+            }      
+          }
+        }
+      }
+    }
+  }
 }
 
 .map-marker-item {
