@@ -51,7 +51,7 @@ export class MapManager {
       }).addTo(this.map);
 
       this.map.on('zoom', () => {
-        console.log('zoom', this.map.getZoom());
+        // console.log('zoom', this.map.getZoom());
         const prevRenderFlag = this.prevZoom >= 6;
         const curRenderFlag = this.map.getZoom() >= 6;
         if (prevRenderFlag !== curRenderFlag) {
@@ -105,6 +105,8 @@ export class MapManager {
             html: `<div class="point-item-container">
               <div class="point-pic" style="background-image: url(${icon})"></div>
             </div>`,
+            iconSize: [37, 40],
+            iconAnchor: [19, 20],
           }),
         })
         return marker;
@@ -112,6 +114,11 @@ export class MapManager {
 
       this.pointLayerGroup = L.layerGroup(pointMarkers);
       this.pointLayerGroup.addTo(this.map);
+    }
+
+    flyTo(latlng: L.LatLngExpression, zoom?: number) {
+      console.log('flyTo', latlng, zoom);
+      this.map.flyTo(latlng, zoom)
     }
 
     enableClickDebug() {
