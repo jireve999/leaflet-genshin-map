@@ -64,7 +64,7 @@ function onTypeItemClick(index: number) {
           <div class="content-item" :class="{ active: child.active}" v-for="child in item.children" :key="child.id" @click="onFilterItemClick(child)">
             <div class="item-icon-container">
               <div class="icon-pic" :style="{ backgroundImage: `url(${child.icon})`}"></div>
-              <div class="icon-count">12</div>
+              <div class="icon-count">{{ child.children.length }}</div>
               <div class="selected-icon" v-if="child.active"></div>
             </div>
             <div class="content-item-name">{{ child.name }}</div>

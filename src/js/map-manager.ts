@@ -10,13 +10,13 @@ interface AreaNameConfig {
 interface PointConfig {
   lat: number
   lng: number
-  iconId: number
+  icon: string
 }
 
 export class MapManager {
     private map: L.Map;
     private areaNameLayerGroup: L.LayerGroup | undefined;
-    private pointMarkersGroup: L.LayerGroup | undefined;
+    private pointLayerGroup: L.LayerGroup | undefined;
     private mapAnchorList: AreaNameConfig[] = [];
     private prevZoom = 0;
   
@@ -88,22 +88,23 @@ export class MapManager {
     }
 
     renderPoints(pointList: PointConfig[]) {
-    const pointMarkers = pointList.map((val) => {
-      const {lat, lng, iconId} = val;
-      const iconUrl = `images/map-icon/${iconId}.png`;
-      const marker = L.marker(L.latLng(lat, lng), {
-        icon: L.divIcon({
-          className: 'map-point-item',
-          html: `<div class="point-item-container">
-            <div class="point-pic" style="background-image: url(${iconUrl})"></div>
-          </div>`,
-        }),
-      })
-      return marker;
-    })
+      this.pointLayerGroup?.clearLayers();
 
-    this.pointMarkersGroup = L.layerGroup(pointMarkers);
-    this.pointMarkersGroup.addTo(this.map);
+      const pointMarkers = pointList.map((val) => {
+        const {lat, lng, icon} = val;
+        const marker = L.marker(L.latLng(lat, lng), {
+          icon: L.divIcon({
+            className: 'map-point-item',
+            html: `<div class="point-item-container">
+              <div class="point-pic" style="background-image: url(${icon})"></div>
+            </div>`,
+          }),
+        })
+        return marker;
+      })
+
+      this.pointLayerGroup = L.layerGroup(pointMarkers);
+      this.pointLayerGroup.addTo(this.map);
     }
 
     enableClickDebug() {

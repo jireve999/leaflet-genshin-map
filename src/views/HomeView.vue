@@ -7,6 +7,7 @@ import SelectArea from '../components/SelectedArea.vue';
 import FilterMain from '../components/FilterMain.vue';
 import { getMapAnchorList } from '../js/api';
 import { useHomeStore } from '../stores/home';
+import { globalDataInst } from '../js/global-data';
 
 const store = useHomeStore();
 const { setMapAnchorList } = store;
@@ -24,25 +25,13 @@ async function initMapAnchorList() {
 
 async function init() {
   await initMapAnchorList();
-  const mapManager = new MapManager('map');
+  globalDataInst.mapManager = new MapManager('map');
+  globalDataInst.mapManager.enableClickDebug();
 
-  mapManager.setMapAnchorList(store.mapAnchorList);
-  mapManager.renderAreaNames();
+  globalDataInst.mapManager.setMapAnchorList(store.mapAnchorList);
+  globalDataInst.mapManager.renderAreaNames();
 
-  const pointMarkerList = [
-    {
-      lat: -99.53125,
-      lng: 131.65625,
-      iconId: 1
-    },
-    {
-      lat: -90.5625,
-      lng: 144.65625,
-      iconId: 1
-    }
-  ]
-  mapManager.renderPoints(pointMarkerList);
-  mapManager.enableClickDebug();
+
 }
 </script>
 
