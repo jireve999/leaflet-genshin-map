@@ -1,5 +1,5 @@
 import L from 'leaflet';
-
+import { getMapPointDetail } from './api';
 interface AreaNameConfig {
   lat: number
   lng: number
@@ -12,6 +12,7 @@ interface PointConfig {
   lng: number
   icon: string
   pointId: number
+  name: string
 }
 
 export class MapManager {
@@ -62,6 +63,15 @@ export class MapManager {
           this.prevZoom = this.map.getZoom();
         }
       });
+
+      this.map.on('click', this.onMapClick.bind(this));
+
+    }
+
+    onMapClick() {
+      const lastActivePoint = document.getElementById(`mapPointItem${this.lastActivePointId}`)
+      lastActivePoint?.classList.remove('active')
+      this.lastActivePointId = -1
     }
 
     setMapAnchorList(configList: AreaNameConfig[]) {
@@ -100,7 +110,7 @@ export class MapManager {
       this.pointLayerGroup?.clearLayers();
 
       const pointMarkers = pointList.map((val) => {
-        const {lat, lng, icon, pointId} = val;
+        const {lat, lng, icon, pointId, name} = val;
         const marker = L.marker(L.latLng(lat, lng), {
           icon: L.divIcon({
             className: 'map-point-item',
@@ -114,6 +124,18 @@ export class MapManager {
             iconSize: [37, 40],
             iconAnchor: [19, 20],
           }),
+        })
+
+        marker.bindPopup(
+          L.popup({
+            content: this.calcPopupContent({ info: {}, correct_user_list: [], last_update_time: '', name: '' })
+          })
+        )
+  
+        marker.on('popupopen', async () => {
+          const res = await getMapPointDetail(pointId)
+          const popupData = { ...res.data, name }
+          marker.setPopupContent(this.calcPopupContent(popupData))
         })
 
         marker.on('click', (e) => {
@@ -132,6 +154,25 @@ export class MapManager {
 
       this.pointLayerGroup = L.layerGroup(pointMarkers);
       this.pointLayerGroup.addTo(this.map);
+    }
+
+    calcPopupContent(popupData: any) {
+      const { correct_user_list, info, last_update_time, name } = popupData
+      const avatarElmStr = correct_user_list.map((val: any) => {
+        return `<div class="avatar-item" style="background-image: url(${val.img})"></div>`
+      })
+      return `<div class="point-popup-container">
+      <div class="popup-title">${name}</div>
+      <div class="popup-pic" style="background-image: url(${info.img})"></div>
+      <div class="point-name">${info.content}</div>
+      <div class="contributor-container">
+        <div class="contributor-label">贡献者：</div>
+        <div class="avatar-container">
+          ${avatarElmStr}
+        </div>
+      </div>
+      <div class="point-time">更新时间：${last_update_time}</div>
+    </div>`
     }
 
     flyTo(latlng: L.LatLngExpression, zoom?: number) {

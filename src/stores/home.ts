@@ -30,7 +30,7 @@ export const useHomeStore = defineStore('home', () => {
 
       activeItems.forEach((element: any) => {
         const points: any = element.children.map((val: any) => {
-          return { ...val, icon: element.icon }
+          return { ...val, icon: element.icon, name: element.name }
         })
         pointList = pointList.concat(points);
       });
