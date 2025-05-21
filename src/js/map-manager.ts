@@ -38,7 +38,6 @@ export class MapManager {
     private pointList: PointConfig[] = [];
     constructor(domId: string) {
       const bounds = L.latLngBounds(L.latLng(0,0), L.latLng(-256, 256));
-
       this.map = L.map(domId, {
         maxBounds: bounds,
         center: [-102, 148],
@@ -51,7 +50,7 @@ export class MapManager {
       });
 
       this.prevZoom = this.map.getZoom();
-      // this.map.addControl(new L.Control.Zoom({ position: 'bottomright' }));
+
       // @ts-ignore
       this.map.addControl(new L.Control.Zoomslider({
         position: 'bottomright',
@@ -67,18 +66,21 @@ export class MapManager {
       }).addTo(this.map);
 
       this.map.on('zoom', () => {
-        // console.log('zoom', this.map.getZoom());
         const prevRenderFlag = this.prevZoom >= 6;
         const curRenderFlag = this.map.getZoom() >= 6;
         if (prevRenderFlag !== curRenderFlag) {
-          console.log('zoom change');
+          // console.log('zoom change');
           this.renderAreaNames();
           this.prevZoom = this.map.getZoom();
         }
       });
 
       this.map.on('click', this.onMapClick.bind(this));
+      this.map.on('moveend', this.onMapMoveEnd.bind(this));
+    }
 
+    onMapMoveEnd() {
+      this.calcOutScreenPoints();
     }
 
     onMapClick() {
@@ -93,8 +95,8 @@ export class MapManager {
 
     renderAreaNames() {
       this.areaNameLayerGroup?.clearLayers();
-
       let markers: L.Marker[] = [];
+
       if (this.map.getZoom() >= 6) {
         this.mapAnchorList.forEach((val) => {
           let childrenList: L.Marker[] = [];
@@ -120,6 +122,7 @@ export class MapManager {
     }
 
     renderPoints(pointList: PointConfig[]) {
+      this.pointList = pointList;
       this.pointLayerGroup?.clearLayers();
 
       const pointMarkers = pointList.map((val) => {
@@ -151,7 +154,7 @@ export class MapManager {
           marker.setPopupContent(this.calcPopupContent(popupData))
         })
 
-        marker.on('click', (e) => {
+        marker.on('click', () => {
           if (this.lastActivePointId === pointId) return;
 
           const lastActivePointId = document.getElementById(`mapPointItem${this.lastActivePointId}`);
@@ -169,6 +172,25 @@ export class MapManager {
       this.pointLayerGroup.addTo(this.map);
 
       this.calcOutScreenPoints();
+    }
+
+    calcPopupContent(popupData: any) {
+      const { correct_user_list, info, last_update_time, name } = popupData
+      const avatarElmStr = correct_user_list.map((val: any) => {
+        return `<div class="avatar-item" style="background-image: url(${val.img})"></div>`
+      })
+      return `<div class="point-popup-container">
+      <div class="popup-title">${name}</div>
+      <div class="popup-pic" style="background-image: url(${info.img})"></div>
+      <div class="point-name">${info.content}</div>
+      <div class="contributor-container">
+        <div class="contributor-label">贡献者：</div>
+        <div class="avatar-container">
+          ${avatarElmStr}
+        </div>
+      </div>
+      <div class="point-time">更新时间：${last_update_time}</div>
+    </div>`
     }
 
     calcOutScreenPoints() {
@@ -216,27 +238,8 @@ export class MapManager {
       EventManager.emit('RenderMapGuideUI', guideUIAry)
     }
 
-    calcPopupContent(popupData: any) {
-      const { correct_user_list, info, last_update_time, name } = popupData
-      const avatarElmStr = correct_user_list.map((val: any) => {
-        return `<div class="avatar-item" style="background-image: url(${val.img})"></div>`
-      })
-      return `<div class="point-popup-container">
-      <div class="popup-title">${name}</div>
-      <div class="popup-pic" style="background-image: url(${info.img})"></div>
-      <div class="point-name">${info.content}</div>
-      <div class="contributor-container">
-        <div class="contributor-label">贡献者：</div>
-        <div class="avatar-container">
-          ${avatarElmStr}
-        </div>
-      </div>
-      <div class="point-time">更新时间：${last_update_time}</div>
-    </div>`
-    }
-
     flyTo(latlng: L.LatLngExpression, zoom?: number) {
-      console.log('flyTo', latlng, zoom);
+      // console.log('flyTo', latlng, zoom);
       this.map.flyTo(latlng, zoom)
     }
 
