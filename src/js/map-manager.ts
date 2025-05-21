@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import { getMapPointDetail } from './api';
+import { EventManager } from './event-manager';
 interface AreaNameConfig {
   lat: number
   lng: number
@@ -15,6 +16,18 @@ interface PointConfig {
   name: string
 }
 
+interface Vector {
+  x: number
+  y: number
+}
+
+export interface GuideUIItem {
+  lat: number
+  lng: number
+  icon: string
+  angle: number
+}
+
 export class MapManager {
     private map: L.Map;
     private areaNameLayerGroup: L.LayerGroup | undefined;
@@ -22,7 +35,7 @@ export class MapManager {
     private mapAnchorList: AreaNameConfig[] = [];
     private prevZoom = 0;
     private lastActivePointId = -1;
-  
+    private pointList: PointConfig[] = [];
     constructor(domId: string) {
       const bounds = L.latLngBounds(L.latLng(0,0), L.latLng(-256, 256));
 
@@ -154,6 +167,53 @@ export class MapManager {
 
       this.pointLayerGroup = L.layerGroup(pointMarkers);
       this.pointLayerGroup.addTo(this.map);
+
+      this.calcOutScreenPoints();
+    }
+
+    calcOutScreenPoints() {
+      const guideUIAry: GuideUIItem[] = []
+      const calcPointMap: { [key: string]: any } = {}
+      const center = this.map.getCenter()
+      for (let i = 0; i < this.pointList.length; i++) {
+        const pointItem = this.pointList[i]
+        const { name } = pointItem
+        if (!calcPointMap[name]) {
+          calcPointMap[name] = {}
+        }
+  
+        if (calcPointMap[name].inScreen) {
+          continue
+        }
+  
+        const isContain = this.map.getBounds().contains(pointItem)
+        if (!isContain) {
+          const dist = center.distanceTo(pointItem)
+          if (!calcPointMap[name].pointItem) {
+            calcPointMap[name] = { dist, pointItem, inScreen: false }
+          } else {
+            const curDist = calcPointMap[name].dist
+            if (dist < curDist) {
+              calcPointMap[name] = { dist, pointItem, inScreen: false }
+            }
+          }
+        } else {
+          calcPointMap[name].inScreen = true
+        }
+      }
+  
+      for (const key in calcPointMap) {
+        const { inScreen, pointItem } = calcPointMap[key]
+        if (!inScreen) {
+          const { lat, lng, icon } = pointItem
+          const directionVector = { x: lng - center.lng, y: lat - center.lat }
+          const xVector = { x: 1, y: 0 }
+          const angle = calcVectorAngle(xVector, directionVector)
+          guideUIAry.push({ angle, icon, lat, lng })
+        }
+      }
+  
+      EventManager.emit('RenderMapGuideUI', guideUIAry)
     }
 
     calcPopupContent(popupData: any) {
@@ -182,9 +242,39 @@ export class MapManager {
 
     enableClickDebug() {
       this.map.on('click', (workingLayer) => {
-        const cordinate  = workingLayer.latlng;
-        console.log('cordinate', cordinate);
-      });
+        const cordinate = workingLayer.latlng
+        console.log('cordinate', cordinate)
+        // let curPointId = parseInt(localStorage.getItem('curPointId') || '1')
+        // let curPointText = localStorage.getItem('curPointText') || ''
+        // const text = `{lat: ${cordinate.lat},lng:${cordinate.lng},pointId:${curPointId}},`
+        // curPointText += text
+        // curPointId++
+        // localStorage.setItem('curPointId', curPointId.toString())
+        // localStorage.setItem('curPointText', curPointText)
+        // navigator.clipboard.writeText(text)
+        // function onTestClick() {
+        //   const curPointText = localStorage.getItem('curPointText') || ''
+        //   console.log('cuuu', curPointText)
+        //   navigator.clipboard.writeText(curPointText)
+        // }
+        // const testNode = document.querySelector('.header-name')
+        // testNode?.removeEventListener('click', onTestClick)
+        // testNode?.addEventListener('click', onTestClick)
+      })
     }
-
 }
+
+function calcVectorAngle(vectorA: Vector, vectorB: Vector) {
+  const dotProduct = vectorA.x * vectorB.x + vectorA.y * vectorB.y
+  const magnitudeA = Math.sqrt(vectorA.x * vectorA.x + vectorA.y * vectorA.y)
+  const magnitudeB = Math.sqrt(vectorB.x * vectorB.x + vectorB.y * vectorB.y)
+
+  const cosTheta = dotProduct / (magnitudeA * magnitudeB)
+  const theta = Math.acos(cosTheta)
+
+  const crossProduct = vectorA.x * vectorB.y - vectorA.y * vectorB.x
+  const direction = crossProduct > 0 ? 1 : -1
+
+  return direction * theta
+}
+
